@@ -18,7 +18,7 @@ class Network(object):
         self.num_layers = len(sizes)
         self.sizes = sizes
         self.biases = [np.random.randn(y,1) for y in sizes[1:]]
-        self.weights = [np.random.randn(y,x) for y,x in zip(sizes[:-1],sizes[1:])]
+        self.weights = [np.random.randn(y,x) for x,y in zip(sizes[:-1],sizes[1:])]  #??check this
 
     def feedforward(self,a):
         """Return the output of the network if ``a`` is input."""
@@ -34,20 +34,20 @@ class Network(object):
         network will be evaluated against the test data after each
         epoch, and partial progress printed out.  This is useful for
         tracking progress, but slows things down substantially."""
-        if(test_data):
+        if test_data:
             n_test=len(test_data)
         n = len(training_data)
-        for j in range(epochs):
+        for j in xrange(epochs):
             random.shuffle(training_data)
             mini_batches = [
                 training_data[k:k+mini_batch_size]
-                for k in range(0,n,mini_batch_size)]
+                for k in xrange(0,n,mini_batch_size)]
             for mini_batch in mini_batches:
                 self.update_mini_batch(mini_batch, eta)
             if test_data:
                 print "Epoch {0}: {1} / {2}".format(
-                    j, self.evaluate(test_data, n_test)
-                )
+                    j, self.evaluate(test_data), n_test)
+                
             else:
                 print "Epoch {0} complete".format(j)
 
@@ -65,8 +65,8 @@ class Network(object):
             nabla_w = [nw+dnw for nw, dnw in zip(nabla_w,delta_nabla_w)]
         self.weights = [w-(eta/len(mini_batch))*nw
                         for w,nw in zip(self.weights, nabla_w)]
-        self.biases = [b-(eta/len(mini_batch))*nw
-                       for w,nw in zip(self.biases, nabla_b)]
+        self.biases = [b-(eta/len(mini_batch))*nb
+                       for b,nb in zip(self.biases, nabla_b)]
 
     def backprop(self, x, y):
         """Return a tuple ``(nabla_b, nabla_w)`` representing the
@@ -117,10 +117,10 @@ class Network(object):
         \partial a for the output activations."""
         return (output_activations-y)
 
+def sigmoid(z):
+    return 1.0/(1.0+np.exp(-z))
 
 def sigmoid_prime(z):
     """Derivative of the sigmoid function."""
     return sigmoid(z)*(1-sigmoid(z))
 
-def sigmoid(z):
-    return 1.0/(1.0+np.exp(-z))
