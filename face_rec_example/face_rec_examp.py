@@ -33,4 +33,21 @@ for filename in os.listdir(UNKNOWN_FACES_DIR):
 
     print(f'm found {len(encodings)} face(s)')
     for face_encoding, face_location in zip(encodings, locations):
-        results = face_recognition.compare_faces(known)
+        results = face_recognition.compare_faces(known_faces, face_encoding, TOLERANCE)
+        print (results)
+
+        match = None
+
+        if True in results:
+            match = known_names[results.index(True)]
+            print(f'- {match} from {results}')
+
+            top_left = (face_location[3], face_location[0])
+            bottom_right = (face_location[1], face_location[2]+22)
+            color = [0,253,0]
+            cv2.rectangle(image, top_left, bottom_right, color, cv2.BORDER_CONSTANT)
+
+            cv2.putText(image, match, (face_location[3]+ 10, face_location[2] + 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (200, 200, 200), FONT_THICKNESS)
+    cv2.imshow(filename, image)
+    cv2.waitKey(0)
+    cv2.destroyWindow(filename)
